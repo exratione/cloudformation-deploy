@@ -49,10 +49,11 @@ export AWS_SECRET_ACCESS_KEY=<secret key>
 export AWS_REGION=us-east-1
 ```
 
-Unlike many Node.js AWS modules, CloudFormation Deploy does not accept IAM
-access keys directly in configuration. It is bad practice to specify access keys
-in code or configuration for code; you should always add them to the environment
-in one of the ways noted above.
+Alternatively, CloudFormation Deploy accepts an optional configuration object
+that is passed to the AWS SDK CloudFormation client instance if present. See the
+configuration details below. This is not recommended: it is bad practice to
+specify access keys in code or configuration for code. You should always add
+them to the environment in one of the ways noted above.
 
 ### 2) Create the CloudFormation Template
 
@@ -94,6 +95,15 @@ var config = {
   // --------------------
   // Optional properties.
   // --------------------
+
+  // If defined, this property is passed to the AWS SDK client. It is not
+  // recommended to use this approach, see above for comments on configuring
+  // AWS access via the environment.
+  // clientOptions : {
+  //   accessKeyId: 'akid',
+  //   secretAccessKey: 'secret',
+  //   region: 'us-east-1'
+  // }
 
   // Timeout in minutes for the process of stack creation.
   createStackTimeoutInMinutes: 10,

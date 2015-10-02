@@ -91,6 +91,7 @@ describe('lib/deploy.js', function () {
         sinon.assert.calledWith(
           cloudFormation.describeStackEvents,
           result.createStack.stackId,
+          config,
           sinon.match.func
         );
 
@@ -124,6 +125,7 @@ describe('lib/deploy.js', function () {
         sinon.assert.calledWith(
           cloudFormation.describeStackEvents,
           result.createStack.stackId,
+          config,
           sinon.match.func
         );
 
@@ -152,6 +154,7 @@ describe('lib/deploy.js', function () {
         sinon.assert.calledWith(
           cloudFormation.describeStackEvents,
           result.createStack.stackId,
+          config,
           sinon.match.func
         );
 
@@ -308,6 +311,7 @@ describe('lib/deploy.js', function () {
         sinon.assert.calledWith(
           cloudFormation.deleteStack,
           result.createStack.stackId,
+          config,
           sinon.match.func
         );
         sinon.assert.calledWith(
@@ -346,6 +350,7 @@ describe('lib/deploy.js', function () {
           cloudFormation.describePriorStacks,
           config.baseName,
           result.createStack.stackId,
+          config,
           sinon.match.func
         );
         sinon.assert.calledOnce(deploy.deleteStack);
@@ -392,6 +397,7 @@ describe('lib/deploy.js', function () {
         sinon.assert.calledWith(
           cloudFormation.validateTemplate,
           template,
+          config,
           sinon.match.func
         );
         sinon.assert.calledWith(
@@ -413,6 +419,7 @@ describe('lib/deploy.js', function () {
         sinon.assert.calledWith(
           cloudFormation.describeStack,
           stackId,
+          config,
           sinon.match.func
         );
         sinon.assert.calledWith(

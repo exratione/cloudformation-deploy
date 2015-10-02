@@ -2,6 +2,9 @@
  * @fileOverview Tests for CloudFormation utilities.
  */
 
+// NPM.
+var AWS = require('aws-sdk');
+
 // Local.
 var cloudFormation = require('../../lib/cloudFormation');
 var constants = require('../../lib/constants');
@@ -19,7 +22,8 @@ describe('lib/cloudFormation', function () {
     sandbox = sinon.sandbox.create();
     template = JSON.stringify({});
 
-    cloudFormation.ensureClient();
+    cloudFormation.client = undefined;
+    cloudFormation.ensureClient(config);
     sandbox.spy(cloudFormation, 'ensureClient');
 
     // Make sure we stub everything that is used.
@@ -41,10 +45,34 @@ describe('lib/cloudFormation', function () {
     sandbox.restore();
   });
 
+  describe('ensureClient', function () {
+    it('does not recreate existing client', function () {
+      var previous = cloudFormation.client;
+      cloudFormation.ensureClient(config);
+      expect(previous).to.equal(cloudFormation.client);
+    });
+
+    it('creates a client with implicit configuration', function () {
+      cloudFormation.client = undefined;
+      cloudFormation.ensureClient(config);
+      expect(cloudFormation.client).to.be.instanceOf(AWS.CloudFormation);
+    });
+
+    it('creates a client with explicit configuration', function () {
+      sandbox.spy(AWS, 'CloudFormation');
+      cloudFormation.client = undefined;
+      config.clientOptions = {
+        region: 'eu-west-1'
+      };
+      cloudFormation.ensureClient(config);
+      sinon.assert.calledWith(AWS.CloudFormation, config.clientOptions);
+    });
+  });
+
   describe('createStack', function () {
     it('invokes createStack with expected arguments', function (done) {
       cloudFormation.createStack(config, template, function (error, data) {
-        sinon.assert.calledOnce(cloudFormation.ensureClient);
+        sinon.assert.calledWith(cloudFormation.ensureClient, config);
         sinon.assert.calledWith(
           cloudFormation.client.createStack,
           {
@@ -71,8 +99,8 @@ describe('lib/cloudFormation', function () {
   describe('deleteStack', function () {
     it('invokes deleteStack with expected arguments', function (done) {
       var stackId = '';
-      cloudFormation.deleteStack(stackId, function (error) {
-        sinon.assert.calledOnce(cloudFormation.ensureClient);
+      cloudFormation.deleteStack(stackId, config, function (error) {
+        sinon.assert.calledWith(cloudFormation.ensureClient, config);
         sinon.assert.calledWith(
           cloudFormation.client.deleteStack,
           {
@@ -90,8 +118,8 @@ describe('lib/cloudFormation', function () {
     it('invokes describeStacks with expected arguments', function (done) {
       var stackId = '';
 
-      cloudFormation.describeStack(stackId, function (error, data) {
-        sinon.assert.calledOnce(cloudFormation.ensureClient);
+      cloudFormation.describeStack(stackId, config, function (error, data) {
+        sinon.assert.calledWith(cloudFormation.ensureClient, config);
         sinon.assert.calledWith(
           cloudFormation.client.describeStacks,
           {
@@ -111,7 +139,7 @@ describe('lib/cloudFormation', function () {
         Stacks: []
       });
 
-      cloudFormation.describeStack(stackId, function (error, data) {
+      cloudFormation.describeStack(stackId, config, function (error, data) {
         expect(error).to.be.instanceof(Error);
         done();
       });
@@ -125,8 +153,9 @@ describe('lib/cloudFormation', function () {
       cloudFormation.describePriorStacks(
         config.baseName,
         createdStackId,
+        config,
         function (error, stackDescriptions) {
-          sinon.assert.calledOnce(cloudFormation.ensureClient);
+          sinon.assert.calledWith(cloudFormation.ensureClient, config);
           sinon.assert.calledWith(
             cloudFormation.client.listStacks,
             {
@@ -219,8 +248,9 @@ describe('lib/cloudFormation', function () {
       cloudFormation.describePriorStacks(
         config.baseName,
         createdStackId,
+        config,
         function (error, stackDescriptions) {
-          sinon.assert.calledOnce(cloudFormation.ensureClient);
+          sinon.assert.calledWith(cloudFormation.ensureClient, config);
           sinon.assert.callCount(cloudFormation.client.listStacks, 3);
           cloudFormation.client.listStacks.getCall(0).calledWith(
             {
@@ -248,10 +278,12 @@ describe('lib/cloudFormation', function () {
           sinon.assert.calledTwice(cloudFormation.describeStack);
           cloudFormation.describeStack.getCall(0).calledWith(
             validPriorStackSummary.StackId,
+            config,
             sinon.match.func
           );
           cloudFormation.describeStack.getCall(1).calledWith(
             invalidPriorStackSummary.StackId,
+            config,
             sinon.match.func
           );
 
@@ -266,8 +298,8 @@ describe('lib/cloudFormation', function () {
   describe('describeStackEvents', function () {
     it('invokes describeStackEvents with expected arguments', function (done) {
       var stackId = '';
-      cloudFormation.describeStackEvents(stackId, function (error, results) {
-        sinon.assert.calledOnce(cloudFormation.ensureClient);
+      cloudFormation.describeStackEvents(stackId, config, function (error, results) {
+        sinon.assert.calledWith(cloudFormation.ensureClient, config);
         sinon.assert.calledWith(
           cloudFormation.client.describeStackEvents,
           {
@@ -297,8 +329,8 @@ describe('lib/cloudFormation', function () {
         StackEvents: [{ i: 2 }, { i: 1 }]
       });
 
-      cloudFormation.describeStackEvents(stackId, function (error, results) {
-        sinon.assert.calledOnce(cloudFormation.ensureClient);
+      cloudFormation.describeStackEvents(stackId, config, function (error, results) {
+        sinon.assert.calledWith(cloudFormation.ensureClient, config);
         sinon.assert.callCount(cloudFormation.client.describeStackEvents, 3);
         cloudFormation.client.describeStackEvents.getCall(0).calledWith(
           {
@@ -340,8 +372,8 @@ describe('lib/cloudFormation', function () {
 
   describe('validateTemplate', function () {
     it('invokes validateTemplate with expected arguments', function (done) {
-      cloudFormation.validateTemplate(template, function (error) {
-        sinon.assert.calledOnce(cloudFormation.ensureClient);
+      cloudFormation.validateTemplate(template, config, function (error) {
+        sinon.assert.calledWith(cloudFormation.ensureClient, config);
         sinon.assert.calledWith(
           cloudFormation.client.validateTemplate,
           {

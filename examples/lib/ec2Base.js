@@ -3,6 +3,8 @@
  *
  * This deploys an EC2 stack from one of the example AWS templates.
  *
+ * First create an EC2 key pair called 'cloudformation-deploy-example.'
+ *
  * Depending on the instanceType specified it can be made to succeed or fail
  * due to the availability of virtualization support. This is helpful when
  * wanting to demonstrate behavior of the deployment code on success or failure.
@@ -39,6 +41,7 @@ exports.run = function (instanceType, callback) {
     progressCheckIntervalInSeconds: 3,
     // Parameters provided to the CloudFormation template.
     parameters: {
+      // You must create an EC2 Key Pair with this name.
       KeyName: 'cloudformation-deploy-example',
       InstanceType: instanceType,
       SSHLocation: '0.0.0.0/0'
