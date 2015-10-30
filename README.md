@@ -103,7 +103,7 @@ var config = {
   //   accessKeyId: 'akid',
   //   secretAccessKey: 'secret',
   //   region: 'us-east-1'
-  // }
+  // },
 
   // Timeout in minutes for the process of stack creation.
   createStackTimeoutInMinutes: 10,

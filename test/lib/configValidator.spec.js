@@ -85,5 +85,8 @@ describe('lib/configValidator', function () {
     shouldReject('createStackTimeoutInMinutes', 'value');
     shouldReject('createStackTimeoutInMinutes', -1);
     shouldAccept('createStackTimeoutInMinutes', 0);
+
+    // Adding extra unwanted property.
+    shouldReject('x', 'value');
   });
 });
