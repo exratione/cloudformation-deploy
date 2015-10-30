@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1
+
+  * Minor improvement to configuration validation.
+
 ## 0.2.0
 
   * Lazy creation of AWS client.
