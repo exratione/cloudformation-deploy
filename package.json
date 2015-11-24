@@ -6,7 +6,7 @@
     "cloudformation",
     "deploy"
   ],
-  "version": "0.2.1",
+  "version": "0.2.2",
   "homepage": "https://github.com/exratione/cloudformation-deploy",
   "author": "Reason <reason@exratione.com>",
   "engines": {

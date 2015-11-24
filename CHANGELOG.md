@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2
+
+  * The minor improvement turned out to disable client options. So fix that.
+
 ## 0.2.1
 
   * Minor improvement to configuration validation.
