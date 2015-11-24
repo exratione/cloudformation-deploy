@@ -17,6 +17,7 @@ var utilities = require('../../lib/utilities');
  */
 exports.getConfig = function (config) {
   return utilities.fillConfigurationDefaults(_.extend({
+    clientOptions: undefined,
     baseName: 'test',
     version: '1.0.0',
     deployId: '1',

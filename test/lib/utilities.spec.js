@@ -138,6 +138,7 @@ describe('lib/utilities.js', function () {
         deployId: '1'
       });
       var configB = {
+        clientOptions: undefined,
         baseName: 'test',
         version: '1.0.0',
         deployId: '1',
@@ -164,6 +165,7 @@ describe('lib/utilities.js', function () {
 
     it('does not override values', function () {
       config = {
+        clientOptions: undefined,
         baseName: 'test',
         version: '1.0.0',
         deployId: '1',

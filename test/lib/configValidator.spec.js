@@ -86,6 +86,10 @@ describe('lib/configValidator', function () {
     shouldReject('createStackTimeoutInMinutes', -1);
     shouldAccept('createStackTimeoutInMinutes', 0);
 
+    // The actually optional options property passed to AWS clients.
+    shouldReject('clientOptions', 'value');
+    shouldAccept('clientOptions', {});
+
     // Adding extra unwanted property.
     shouldReject('x', 'value');
   });
