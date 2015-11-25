@@ -7,7 +7,7 @@ var constants = require('../../lib/constants');
 var resources = require('../resources');
 var utilities = require('../../lib/utilities');
 
-describe('lib/utilities.js', function () {
+describe('lib/utilities', function () {
 
   var config;
 

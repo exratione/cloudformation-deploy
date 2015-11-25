@@ -89,6 +89,7 @@ describe('lib/configValidator', function () {
     // The actually optional options property passed to AWS clients.
     shouldReject('clientOptions', 'value');
     shouldAccept('clientOptions', {});
+    shouldAccept('clientOptions', undefined);
 
     // Adding extra unwanted property.
     shouldReject('x', 'value');

@@ -3,15 +3,13 @@
  */
 
 // Local.
-var cloudFormation = require('../../lib/cloudFormation');
 var configValidator = require('../../lib/configValidator');
 var constants = require('../../lib/constants');
-var deploy = require('../../lib/deploy');
+var Deploy = require('../../lib/deploy');
 var resources = require('../resources');
 var utilities = require('../../lib/utilities');
 
-describe('lib/deploy.js', function () {
-
+describe('lib/deploy', function () {
   var config;
   var template;
   var sandbox;
@@ -19,9 +17,11 @@ describe('lib/deploy.js', function () {
   var stackId;
 
   beforeEach(function () {
+    sandbox = sinon.sandbox.create();
+
     config = resources.getConfig();
     template = JSON.stringify({});
-    sandbox = sinon.sandbox.create();
+    deploy = new Deploy(config, template);
     stackId = 'id';
     result = {
       timedOut: false,
@@ -35,16 +35,16 @@ describe('lib/deploy.js', function () {
     sandbox.stub(config, 'onEventFn').returns();
 
     // Make sure we stub everything that is used.
-    sandbox.stub(cloudFormation, 'createStack').yields(null, {
+    sandbox.stub(deploy.cloudFormation, 'createStack').yields(null, {
       StackId: stackId
     });
-    sandbox.stub(cloudFormation, 'deleteStack').yields();
-    sandbox.stub(cloudFormation, 'describeStack').yields(null, {
+    sandbox.stub(deploy.cloudFormation, 'deleteStack').yields();
+    sandbox.stub(deploy.cloudFormation, 'describeStack').yields(null, {
       StackId: stackId
     });
-    sandbox.stub(cloudFormation, 'describePriorStacks').yields(null, []);
-    sandbox.stub(cloudFormation, 'describeStackEvents').yields(null, []);
-    sandbox.stub(cloudFormation, 'validateTemplate').yields();
+    sandbox.stub(deploy.cloudFormation, 'describePriorStacks').yields(null, []);
+    sandbox.stub(deploy.cloudFormation, 'describeStackEvents').yields(null, []);
+    sandbox.stub(deploy.cloudFormation, 'validateTemplate').yields();
   });
 
   afterEach(function () {
@@ -85,13 +85,12 @@ describe('lib/deploy.js', function () {
       ];
       events = oldEvents.concat(newEvents);
 
-      cloudFormation.describeStackEvents.yields(null, events);
+      deploy.cloudFormation.describeStackEvents.yields(null, events);
 
-      deploy.updateEventData(result.createStack, config, function (error) {
+      deploy.updateEventData(result.createStack, function (error) {
         sinon.assert.calledWith(
-          cloudFormation.describeStackEvents,
+          deploy.cloudFormation.describeStackEvents,
           result.createStack.stackId,
-          config,
           sinon.match.func
         );
 
@@ -119,13 +118,12 @@ describe('lib/deploy.js', function () {
       ];
       events = oldEvents.concat(newEvents);
 
-      cloudFormation.describeStackEvents.yields(null, events);
+      deploy.cloudFormation.describeStackEvents.yields(null, events);
 
-      deploy.updateEventData(result.createStack, config, function (error) {
+      deploy.updateEventData(result.createStack, function (error) {
         sinon.assert.calledWith(
-          cloudFormation.describeStackEvents,
+          deploy.cloudFormation.describeStackEvents,
           result.createStack.stackId,
-          config,
           sinon.match.func
         );
 
@@ -148,13 +146,12 @@ describe('lib/deploy.js', function () {
       ];
       events = oldEvents.concat(newEvents);
 
-      cloudFormation.describeStackEvents.yields(null, events);
+      deploy.cloudFormation.describeStackEvents.yields(null, events);
 
-      deploy.updateEventData(result.createStack, config, function (error) {
+      deploy.updateEventData(result.createStack, function (error) {
         sinon.assert.calledWith(
-          cloudFormation.describeStackEvents,
+          deploy.cloudFormation.describeStackEvents,
           result.createStack.stackId,
-          config,
           sinon.match.func
         );
 
@@ -171,9 +168,9 @@ describe('lib/deploy.js', function () {
     });
 
     it('calls back with error on error', function (done) {
-      cloudFormation.describeStackEvents.yields(new Error());
+      deploy.cloudFormation.describeStackEvents.yields(new Error());
 
-      deploy.updateEventData(result.createStack, config, function (error) {
+      deploy.updateEventData(result.createStack, function (error) {
         expect(error).to.be.instanceof(Error);
         done();
       });
@@ -196,7 +193,6 @@ describe('lib/deploy.js', function () {
       deploy.awaitCompletion(
         type,
         result.createStack,
-        config,
         function (error) {
           if (shouldError) {
             expect(error).to.be.instanceof(Error);
@@ -215,7 +211,6 @@ describe('lib/deploy.js', function () {
       sinon.assert.calledWith(
         deploy.updateEventData,
         result.createStack,
-        config,
         sinon.match.func
       );
       expect(calledBack).to.equal(false);
@@ -227,7 +222,6 @@ describe('lib/deploy.js', function () {
       sinon.assert.calledWith(
         deploy.updateEventData,
         result.createStack,
-        config,
         sinon.match.func
       );
       expect(calledBack).to.equal(true);
@@ -303,22 +297,20 @@ describe('lib/deploy.js', function () {
 
       result.createStack.stackId = stackId;
 
-      deploy.deleteStack(result.createStack, config, function (error) {
+      deploy.deleteStack(result.createStack, function (error) {
         sinon.assert.callOrder(
-          cloudFormation.deleteStack,
+          deploy.cloudFormation.deleteStack,
           deploy.awaitCompletion
         );
         sinon.assert.calledWith(
-          cloudFormation.deleteStack,
+          deploy.cloudFormation.deleteStack,
           result.createStack.stackId,
-          config,
           sinon.match.func
         );
         sinon.assert.calledWith(
           deploy.awaitCompletion,
           constants.type.DELETE_STACK,
           result.createStack,
-          config,
           sinon.match.func
         );
 
@@ -338,19 +330,18 @@ describe('lib/deploy.js', function () {
       var matchingStackId = 'a-valid-stack-id';
       result.createStack.stackId = 'created-stack-id';
 
-      cloudFormation.describePriorStacks.yields(null, [
+      deploy.cloudFormation.describePriorStacks.yields(null, [
         {
           StackName: matchingStackName,
           StackId: matchingStackId
         }
       ]);
 
-      deploy.deletePriorStacks(result, config, function (error) {
+      deploy.deletePriorStacks(result, function (error) {
         sinon.assert.calledWith(
-          cloudFormation.describePriorStacks,
+          deploy.cloudFormation.describePriorStacks,
           config.baseName,
           result.createStack.stackId,
-          config,
           sinon.match.func
         );
         sinon.assert.calledOnce(deploy.deleteStack);
@@ -360,7 +351,6 @@ describe('lib/deploy.js', function () {
             matchingStackName,
             matchingStackId
           ),
-          config,
           sinon.match.func
         );
 
@@ -379,13 +369,13 @@ describe('lib/deploy.js', function () {
     });
 
     it('invokes underlying functions when no errors are created', function (done) {
-      deploy.deploy(config, template, function (error, generatedResult) {
+      deploy.deploy(function (error, generatedResult) {
         sinon.assert.callOrder(
           configValidator.validate,
-          cloudFormation.validateTemplate,
-          cloudFormation.createStack,
+          deploy.cloudFormation.validateTemplate,
+          deploy.cloudFormation.createStack,
           deploy.awaitCompletion,
-          cloudFormation.describeStack,
+          deploy.cloudFormation.describeStack,
           config.postCreationFn,
           deploy.deletePriorStacks
         );
@@ -395,14 +385,12 @@ describe('lib/deploy.js', function () {
           config
         );
         sinon.assert.calledWith(
-          cloudFormation.validateTemplate,
+          deploy.cloudFormation.validateTemplate,
           template,
-          config,
           sinon.match.func
         );
         sinon.assert.calledWith(
-          cloudFormation.createStack,
-          config,
+          deploy.cloudFormation.createStack,
           template,
           sinon.match.func
         );
@@ -413,13 +401,11 @@ describe('lib/deploy.js', function () {
             utilities.getStackName(config),
             stackId
           ),
-          config,
           sinon.match.func
         );
         sinon.assert.calledWith(
-          cloudFormation.describeStack,
+          deploy.cloudFormation.describeStack,
           stackId,
-          config,
           sinon.match.func
         );
         sinon.assert.calledWith(
@@ -430,7 +416,6 @@ describe('lib/deploy.js', function () {
         sinon.assert.calledWith(
           deploy.deletePriorStacks,
           generatedResult,
-          config,
           sinon.match.func
         );
 
@@ -441,6 +426,5 @@ describe('lib/deploy.js', function () {
       });
     });
   });
-
 
 });
