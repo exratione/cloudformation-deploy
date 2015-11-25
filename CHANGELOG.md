@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0
+
+  * Add more detail to failure mode documentation.
+  * Ensure that concurrently running deployments in the same process work.
+
 ## 0.2.2
 
   * The minor improvement turned out to disable client options. So fix that.
