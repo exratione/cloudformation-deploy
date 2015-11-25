@@ -231,5 +231,36 @@ the deployed stack on failure. Defaults to
 * `cloudFormationDeploy.onFailure.DELETE`
 * `cloudFormationDeploy.onFailure.DO_NOTHING`
 
+## Failure Cases
+
+All failure cases will result in `cloudFormationDeploy.deploy` calling back with
+an error. The state of the stacks depends on where in the process that error
+occurred, however.
+
+1) If the stack creation fails, then:
+
+  * The `postCreationFn` function is not invoked.
+  * The failed stack is deleted if `priorInstance` is
+`cloudFormationDeploy.onFailure.DELETE`.
+  * Any prior stacks are left untouched.
+
+2) If the stack creation succeeds, but subsequent calls to obtain the stack
+details fail, then:
+
+  * The `postCreationFn` function is not invoked.
+  * The newly created stack is not deleted.
+  * Any prior stacks are left untouched.
+
+3) If the `postCreationFn` calls back with an error due to failure, then:
+
+  * The newly created stack is not deleted.
+  * Any prior stacks are left untouched.
+
+4) If the deletion of prior stacks fails, then:
+
+  * The newly created stack is not deleted.
+  * Any prior stacks are left in whatever state the deletion failure leaves them
+in.
+
 [1]: ./examples
 [2]: http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-configuring.html
