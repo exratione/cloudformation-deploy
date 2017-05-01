@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+  * Update aws-sdk package version.
+
 ## 0.3.0
 
   * Add more detail to failure mode documentation.
