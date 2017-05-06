@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2
+
+  * Add capabilities to the configuration options.
+
 ## 0.3.1
 
   * Update aws-sdk package version.
