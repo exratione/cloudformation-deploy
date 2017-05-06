@@ -7,6 +7,7 @@ var constants = require('./lib/constants');
 var Deploy = require('./lib/deploy');
 
 // Exported constants.
+exports.capabilities = constants.capabilities;
 exports.onFailure = constants.onFailure;
 exports.priorInstance = constants.priorInstance;
 

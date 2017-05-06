@@ -18,6 +18,12 @@ describe('index', function () {
     sandbox.restore();
   });
 
+  describe('capabilities', function () {
+    it('is correctly assigned', function () {
+      expect(index.capabilities).to.equal(constants.capabilities);
+    });
+  });
+
   describe('onFailure', function () {
     it('is correctly assigned', function () {
       expect(index.onFailure).to.equal(constants.onFailure);

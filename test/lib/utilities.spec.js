@@ -2,6 +2,9 @@
  * @fileOverview Tests for shared utilities.
  */
 
+// NPM.
+var _ = require('lodash');
+
 // Local.
 var constants = require('../../lib/constants');
 var resources = require('../resources');
@@ -139,6 +142,7 @@ describe('lib/utilities', function () {
       });
       var configB = {
         clientOptions: undefined,
+        capabilities: _.values(constants.capabilities),
         baseName: 'test',
         version: '1.0.0',
         deployId: '1',
@@ -166,6 +170,7 @@ describe('lib/utilities', function () {
     it('does not override values', function () {
       config = {
         clientOptions: undefined,
+        capabilities: _.values(constants.capabilities),
         baseName: 'test',
         version: '1.0.0',
         deployId: '1',

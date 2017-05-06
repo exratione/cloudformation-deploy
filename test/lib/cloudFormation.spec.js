@@ -65,7 +65,7 @@ describe('lib/cloudFormation', function () {
           cloudFormation.client.createStack,
           {
             StackName: utilities.getStackName(config),
-            Capabilities: ['CAPABILITY_IAM'],
+            Capabilities: config.capabilities,
             OnFailure: config.onFailure,
             Parameters: utilities.getParameters(config),
             Tags: utilities.getTags(config),

@@ -99,11 +99,19 @@ var config = {
   // If defined, this property is passed to the AWS SDK client. It is not
   // recommended to use this approach, see above for comments on configuring
   // AWS access via the environment.
-  // clientOptions : {
+  // clientOptions: {
   //   accessKeyId: 'akid',
   //   secretAccessKey: 'secret',
   //   region: 'us-east-1'
   // },
+
+  // Needed for stacks that affect permissions, which is most application stacks
+  // these days.
+  // See: http://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_CreateStack.html
+  capabilities: [
+    cloudFormationDeploy.capabilities.CAPABILITY_IAM,
+    cloudFormationDeploy.capabilities.CAPABILITY_NAMED_IAM
+  ],
 
   // Timeout in minutes for the process of stack creation.
   createStackTimeoutInMinutes: 10,

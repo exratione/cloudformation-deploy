@@ -86,6 +86,15 @@ describe('lib/configValidator', function () {
     shouldReject('createStackTimeoutInMinutes', -1);
     shouldAccept('createStackTimeoutInMinutes', 0);
 
+    shouldReject('capabilities', ['x']);
+    shouldAccept('capabilities', []);
+    shouldAccept('capabilities', [constants.capabilities.CAPABILITY_IAM]);
+    shouldAccept('capabilities', [constants.capabilities.CAPABILITY_NAMED_IAM]);
+    shouldAccept('capabilities', [
+      constants.capabilities.CAPABILITY_IAM,
+      constants.capabilities.CAPABILITY_NAMED_IAM
+    ]);
+
     // The actually optional options property passed to AWS clients.
     shouldReject('clientOptions', 'value');
     shouldAccept('clientOptions', {});
