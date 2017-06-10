@@ -8,7 +8,7 @@
  *
  * To run:
  *
- * node examples/ec2Success.js
+ * node examples/ec2DeploySuccess.js
  *
  * Before running you must:
  *
@@ -20,9 +20,9 @@
  */
 
 var util = require('util');
-var example = require('./lib/ec2Base');
+var example = require('./lib/ec2DeployBase');
 
-example.run('m1.small', function (error, result) {
+example.run('t1.micro', function (error, result) {
   // This enables error messages to show up in the JSON output. Not something to
   // be used outside of example code.
   Object.defineProperty(Error.prototype, 'message', {

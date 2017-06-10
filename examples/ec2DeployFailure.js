@@ -7,7 +7,7 @@
  *
  * To run:
  *
- * node examples/ec2Failure.js
+ * node examples/ec2DeployFailure.js
  *
  * Before running you must:
  *
@@ -19,10 +19,9 @@
  */
 
 var util = require('util');
-var example = require('./lib/ec2Base');
+var example = require('./lib/ec2DeployBase');
 
-// The deployment fails because this instance type doesn't support the required
-// form of virtualization for the specified image.
+// The deployment fails because this instance type requires deployment in a VPC.
 example.run('t2.micro', function (error, result) {
   // This enables error messages to show up in the JSON output. Not something to
   // be used outside of example code.

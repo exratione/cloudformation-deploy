@@ -8,99 +8,170 @@ var constants = require('../../lib/constants');
 var resources = require('../resources');
 
 describe('lib/configValidator', function () {
-
   var config;
   var errors;
 
-  function run (property, value, shouldError) {
-    config = resources.getConfig();
-    config[property] = value;
-    errors = configValidator.validate(config);
-    if (shouldError) {
-      expect(errors.length).to.be.above(0);
+  describe('deploy config', function () {
+
+    function run (property, value, shouldError) {
+      config = resources.getDeployConfig();
+      config[property] = value;
+      errors = configValidator.validateDeployConfig(config);
+      if (shouldError) {
+        expect(errors.length).to.be.above(0);
+      }
+      else {
+        expect(errors.length).to.equal(0);
+      }
     }
-    else {
-      expect(errors.length).to.equal(0);
+
+    function shouldAccept (property, value) {
+      run(property, value, false);
     }
-  }
 
-  function shouldAccept (property, value) {
-    run(property, value, false);
-  }
+    function shouldReject (property, value) {
+      run(property, value, true);
+    }
 
-  function shouldReject (property, value) {
-    run(property, value, true);
-  }
+    it('validates correct configuration', function () {
+      config = resources.getDeployConfig();
+      errors = configValidator.validateDeployConfig(config);
+      expect(errors).to.eql([]);
+    });
 
-  it('validates correct configuration', function () {
-    config = resources.getConfig();
-    errors = configValidator.validate(config);
-    expect(errors).to.eql([]);
+    it('rejects invalid configurations, accepts valid configurations', function () {
+      shouldReject('baseName', undefined);
+      shouldReject('baseName', '');
+
+      shouldReject('version', undefined);
+      shouldReject('version', '');
+
+      shouldReject('deployId', undefined);
+      shouldReject('deployId', '');
+      shouldAccept('deployId', '7');
+      shouldAccept('deployId', 7);
+
+      shouldReject('onDeployFailure', undefined);
+      shouldReject('onDeployFailureFailure', '');
+      shouldAccept('onDeployFailure', constants.onDeployFailure.DELETE);
+      shouldAccept('onDeployFailure', constants.onDeployFailure.DO_NOTHING);
+
+      shouldReject('parameters', undefined);
+      shouldReject('parameters', { numberIsInvalid: 7 });
+      shouldAccept('parameters', {});
+      shouldAccept('parameters', { arbitraryName: 'value' });
+
+      shouldReject('progressCheckIntervalInSeconds', undefined);
+      shouldReject('progressCheckIntervalInSeconds', 0);
+      shouldReject('progressCheckIntervalInSeconds', -1);
+      shouldReject('progressCheckIntervalInSeconds', 'value');
+
+      shouldReject('onEventFn', undefined);
+      shouldReject('onEventFn', 'value');
+
+      shouldReject('postCreationFn', undefined);
+      shouldReject('postCreationFn', 'value');
+
+      shouldReject('priorInstance', undefined);
+      shouldReject('priorInstance', 'value');
+      shouldAccept('priorInstance', constants.priorInstance.DELETE);
+      shouldAccept('priorInstance', constants.priorInstance.DO_NOTHING);
+
+      shouldReject('tags', undefined);
+      shouldReject('tags', { numberIsInvalid: 7 });
+      shouldAccept('parameters', {});
+      shouldAccept('parameters', { arbitraryName: 'value' });
+
+      shouldReject('createStackTimeoutInMinutes', undefined);
+      shouldReject('createStackTimeoutInMinutes', 'value');
+      shouldReject('createStackTimeoutInMinutes', -1);
+      shouldAccept('createStackTimeoutInMinutes', 0);
+
+      shouldReject('capabilities', ['x']);
+      shouldAccept('capabilities', []);
+      shouldAccept('capabilities', [constants.capabilities.CAPABILITY_IAM]);
+      shouldAccept('capabilities', [constants.capabilities.CAPABILITY_NAMED_IAM]);
+      shouldAccept('capabilities', [
+        constants.capabilities.CAPABILITY_IAM,
+        constants.capabilities.CAPABILITY_NAMED_IAM
+      ]);
+
+      // The actually optional options property passed to AWS clients.
+      shouldReject('clientOptions', 'value');
+      shouldAccept('clientOptions', {});
+      shouldAccept('clientOptions', undefined);
+
+      // Adding extra unwanted property.
+      shouldReject('x', 'value');
+    });
   });
 
-  it('rejects invalid configurations, accepts valid configurations', function () {
-    shouldReject('baseName', undefined);
-    shouldReject('baseName', '');
+  describe('update config', function () {
 
-    shouldReject('version', undefined);
-    shouldReject('version', '');
+    function run (property, value, shouldError) {
+      config = resources.getUpdateConfig();
+      config[property] = value;
+      errors = configValidator.validateUpdateConfig(config);
+      if (shouldError) {
+        expect(errors.length).to.be.above(0);
+      }
+      else {
+        expect(errors.length).to.equal(0);
+      }
+    }
 
-    shouldReject('deployId', undefined);
-    shouldReject('deployId', '');
-    shouldAccept('deployId', '7');
-    shouldAccept('deployId', 7);
+    function shouldAccept (property, value) {
+      run(property, value, false);
+    }
 
-    shouldReject('onFailure', undefined);
-    shouldReject('onFailure', '');
-    shouldAccept('onFailure', constants.onFailure.DELETE);
-    shouldAccept('onFailure', constants.onFailure.DO_NOTHING);
+    function shouldReject (property, value) {
+      run(property, value, true);
+    }
 
-    shouldReject('parameters', undefined);
-    shouldReject('parameters', { numberIsInvalid: 7 });
-    shouldAccept('parameters', {});
-    shouldAccept('parameters', { arbitraryName: 'value' });
+    it('validates correct configuration', function () {
+      config = resources.getUpdateConfig();
+      errors = configValidator.validateUpdateConfig(config);
+      expect(errors).to.eql([]);
+    });
 
-    shouldReject('progressCheckIntervalInSeconds', undefined);
-    shouldReject('progressCheckIntervalInSeconds', 0);
-    shouldReject('progressCheckIntervalInSeconds', -1);
-    shouldReject('progressCheckIntervalInSeconds', 'value');
+    it('rejects invalid configurations, accepts valid configurations', function () {
+      shouldReject('stackName', undefined);
+      shouldReject('stackName', '');
 
-    shouldReject('onEventFn', undefined);
-    shouldReject('onEventFn', 'value');
+      shouldReject('parameters', undefined);
+      shouldReject('parameters', { numberIsInvalid: 7 });
+      shouldAccept('parameters', {});
+      shouldAccept('parameters', { arbitraryName: 'value' });
 
-    shouldReject('postCreationFn', undefined);
-    shouldReject('postCreationFn', 'value');
+      shouldReject('progressCheckIntervalInSeconds', undefined);
+      shouldReject('progressCheckIntervalInSeconds', 0);
+      shouldReject('progressCheckIntervalInSeconds', -1);
+      shouldReject('progressCheckIntervalInSeconds', 'value');
 
-    shouldReject('priorInstance', undefined);
-    shouldReject('priorInstance', 'value');
-    shouldAccept('priorInstance', constants.priorInstance.DELETE);
-    shouldAccept('priorInstance', constants.priorInstance.DO_NOTHING);
+      shouldReject('onEventFn', undefined);
+      shouldReject('onEventFn', 'value');
 
-    shouldReject('tags', undefined);
-    shouldReject('tags', { numberIsInvalid: 7 });
-    shouldAccept('parameters', {});
-    shouldAccept('parameters', { arbitraryName: 'value' });
+      shouldReject('tags', undefined);
+      shouldReject('tags', { numberIsInvalid: 7 });
+      shouldAccept('parameters', {});
+      shouldAccept('parameters', { arbitraryName: 'value' });
 
-    shouldReject('createStackTimeoutInMinutes', undefined);
-    shouldReject('createStackTimeoutInMinutes', 'value');
-    shouldReject('createStackTimeoutInMinutes', -1);
-    shouldAccept('createStackTimeoutInMinutes', 0);
+      shouldReject('capabilities', ['x']);
+      shouldAccept('capabilities', []);
+      shouldAccept('capabilities', [constants.capabilities.CAPABILITY_IAM]);
+      shouldAccept('capabilities', [constants.capabilities.CAPABILITY_NAMED_IAM]);
+      shouldAccept('capabilities', [
+        constants.capabilities.CAPABILITY_IAM,
+        constants.capabilities.CAPABILITY_NAMED_IAM
+      ]);
 
-    shouldReject('capabilities', ['x']);
-    shouldAccept('capabilities', []);
-    shouldAccept('capabilities', [constants.capabilities.CAPABILITY_IAM]);
-    shouldAccept('capabilities', [constants.capabilities.CAPABILITY_NAMED_IAM]);
-    shouldAccept('capabilities', [
-      constants.capabilities.CAPABILITY_IAM,
-      constants.capabilities.CAPABILITY_NAMED_IAM
-    ]);
+      // The actually optional options property passed to AWS clients.
+      shouldReject('clientOptions', 'value');
+      shouldAccept('clientOptions', {});
+      shouldAccept('clientOptions', undefined);
 
-    // The actually optional options property passed to AWS clients.
-    shouldReject('clientOptions', 'value');
-    shouldAccept('clientOptions', {});
-    shouldAccept('clientOptions', undefined);
-
-    // Adding extra unwanted property.
-    shouldReject('x', 'value');
+      // Adding extra unwanted property.
+      shouldReject('x', 'value');
+    });
   });
 });

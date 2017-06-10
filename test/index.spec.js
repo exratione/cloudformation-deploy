@@ -6,6 +6,7 @@
 var constants = require('../lib/constants');
 var Deploy = require('../lib/deploy');
 var index = require('../index');
+var Update = require('../lib/update');
 
 describe('index', function () {
   var sandbox;
@@ -24,9 +25,9 @@ describe('index', function () {
     });
   });
 
-  describe('onFailure', function () {
+  describe('onDeployFailure', function () {
     it('is correctly assigned', function () {
-      expect(index.onFailure).to.equal(constants.onFailure);
+      expect(index.onDeployFailure).to.equal(constants.onDeployFailure);
     });
   });
 
@@ -51,6 +52,29 @@ describe('index', function () {
       index.deploy(config, template, function (error) {
         sinon.assert.calledWith(
           Deploy.prototype.deploy,
+          sinon.match.func
+        );
+
+        done(error);
+      });
+    })
+  });
+
+  describe('update', function () {
+    var config;
+    var template;
+
+    beforeEach(function () {
+      config = {};
+      template = {};
+
+      sandbox.stub(Update.prototype, 'update').yields();
+    });
+
+    it('functions as expected', function (done) {
+      index.update(config, template, function (error) {
+        sinon.assert.calledWith(
+          Update.prototype.update,
           sinon.match.func
         );
 

@@ -12,24 +12,32 @@ var utilities = require('../../lib/utilities');
 
 describe('lib/utilities', function () {
 
-  var config;
+  var deployConfig;
+  var updateConfig;
 
   beforeEach(function () {
-    config = resources.getConfig();
+    deployConfig = resources.getDeployConfig();
+    updateConfig = resources.getUpdateConfig();
   });
 
   describe('getStackName', function () {
-    it('functions correctly', function () {
-      expect(utilities.getStackName(config)).to.equal(
-        config.baseName + '-' + config.deployId
+    it('functions correctly for deploy config', function () {
+      expect(utilities.determineStackName(deployConfig)).to.equal(
+        deployConfig.baseName + '-' + deployConfig.deployId
+      );
+    });
+
+    it('functions correctly for update config', function () {
+      expect(utilities.determineStackName(updateConfig)).to.equal(
+        updateConfig.stackName
       );
     });
 
     it('replaces invalid characters with dashes', function () {
-      config.baseName = '._%a';
-      config.deployId = '._%b';
+      deployConfig.baseName = '._%a';
+      deployConfig.deployId = '._%b';
 
-      expect(utilities.getStackName(config)).to.equal('---a----b');
+      expect(utilities.determineStackName(deployConfig)).to.equal('---a----b');
     });
   });
 
@@ -42,7 +50,7 @@ describe('lib/utilities', function () {
 
   describe('getParameters', function () {
     it('functions correctly', function () {
-      expect(utilities.getParameters(config)).to.eql([
+      expect(utilities.getParameters(deployConfig)).to.eql([
         {
           ParameterKey: 'name',
           ParameterValue: 'value'
@@ -51,14 +59,14 @@ describe('lib/utilities', function () {
     });
 
     it('functions correctly for missing parameters', function () {
-      config.parameters = undefined;
-      expect(utilities.getParameters(config)).to.eql([]);
+      deployConfig.parameters = undefined;
+      expect(utilities.getParameters(deployConfig)).to.eql([]);
     });
   });
 
   describe('getTags', function () {
-    it('functions correctly', function () {
-      expect(utilities.getTags(config)).to.eql([
+    it('functions correctly for deploy config', function () {
+      expect(utilities.getTags(deployConfig)).to.eql([
         {
           Key: 'a',
           Value: 'b'
@@ -78,9 +86,22 @@ describe('lib/utilities', function () {
       ]);
     });
 
+    it('functions correctly for update config', function () {
+      expect(utilities.getTags(updateConfig)).to.eql([
+        {
+          Key: 'a',
+          Value: 'b'
+        },
+        {
+          Key: constants.tag.STACK_NAME,
+          Value: 'test'
+        }
+      ]);
+    });
+
     it('functions correctly for missing tags', function () {
-      config.tags = undefined;
-      expect(utilities.getTags(config)).to.eql([
+      deployConfig.tags = undefined;
+      expect(utilities.getTags(deployConfig)).to.eql([
         {
           Key: constants.tag.STACK_NAME,
           Value: 'test-1'
@@ -133,14 +154,14 @@ describe('lib/utilities', function () {
     });
   });
 
-  describe('fillConfigurationDefaults', function () {
+  describe('fillDeployConfigurationDefaults', function () {
     it('fills defaults', function () {
-      var configA = utilities.fillConfigurationDefaults({
+      var deployConfigA = utilities.fillDeployConfigurationDefaults({
         baseName: 'test',
         version: '1.0.0',
         deployId: '1'
       });
-      var configB = {
+      var deployConfigB = {
         clientOptions: undefined,
         capabilities: _.values(constants.capabilities),
         baseName: 'test',
@@ -155,20 +176,20 @@ describe('lib/utilities', function () {
         },
         createStackTimeoutInMinutes: 10,
         priorInstance: constants.priorInstance.DELETE,
-        onFailure: constants.onFailure.DELETE
+        onDeployFailure: constants.onDeployFailure.DELETE
       };
 
       // Comparing functions, have to take account of different indentations.
-      configA.onEventFn = configA.onEventFn.toString().replace(/\s+/g, ' ');
-      configB.onEventFn = configB.onEventFn.toString().replace(/\s+/g, ' ');
-      configA.postCreationFn = configA.postCreationFn.toString().replace(/\s+/g, ' ');
-      configB.postCreationFn = configB.postCreationFn.toString().replace(/\s+/g, ' ');
+      deployConfigA.onEventFn = deployConfigA.onEventFn.toString().replace(/\s+/g, ' ');
+      deployConfigB.onEventFn = deployConfigB.onEventFn.toString().replace(/\s+/g, ' ');
+      deployConfigA.postCreationFn = deployConfigA.postCreationFn.toString().replace(/\s+/g, ' ');
+      deployConfigB.postCreationFn = deployConfigB.postCreationFn.toString().replace(/\s+/g, ' ');
 
-      expect(configA).to.eql(configB);
+      expect(deployConfigA).to.eql(deployConfigB);
     });
 
     it('does not override values', function () {
-      config = {
+      deployConfig = {
         clientOptions: undefined,
         capabilities: _.values(constants.capabilities),
         baseName: 'test',
@@ -189,10 +210,53 @@ describe('lib/utilities', function () {
         },
         createStackTimeoutInMinutes: 5,
         priorInstance: constants.priorInstance.DO_NOTHING,
-        onFailure: constants.onFailure.DO_NOTHING
+        onDeployFailure: constants.onDeployFailure.DO_NOTHING
       };
 
-      expect(utilities.fillConfigurationDefaults(config)).to.eql(config);
+      expect(utilities.fillDeployConfigurationDefaults(deployConfig)).to.eql(deployConfig);
+    });
+  });
+
+  describe('fillUpdateConfigurationDefaults', function () {
+    it('fills defaults', function () {
+      var updateConfigA = utilities.fillUpdateConfigurationDefaults({
+        stackName: 'test'
+      });
+      var updateConfigB = {
+        clientOptions: undefined,
+        capabilities: _.values(constants.capabilities),
+        stackName: 'test',
+        tags: {},
+        parameters: {},
+        progressCheckIntervalInSeconds: 10,
+        onEventFn: function () {}
+      };
+
+      // Comparing functions, have to take account of different indentations.
+      updateConfigA.onEventFn = updateConfigA.onEventFn.toString().replace(/\s+/g, ' ');
+      updateConfigB.onEventFn = updateConfigB.onEventFn.toString().replace(/\s+/g, ' ');
+
+      expect(updateConfigA).to.eql(updateConfigB);
+    });
+
+    it('does not override values', function () {
+      updateConfig = {
+        clientOptions: undefined,
+        capabilities: _.values(constants.capabilities),
+        stackName: 'test',
+        tags: {
+          x: 'y'
+        },
+        parameters: {
+          alpha: 'beta'
+        },
+        progressCheckIntervalInSeconds: 15,
+        onEventFn: function (event) {
+          return JSON.stringify(event);
+        }
+      };
+
+      expect(utilities.fillUpdateConfigurationDefaults(updateConfig)).to.eql(updateConfig);
     });
   });
 

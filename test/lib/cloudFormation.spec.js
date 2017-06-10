@@ -18,7 +18,7 @@ describe('lib/cloudFormation', function () {
   var template;
 
   beforeEach(function () {
-    config = resources.getConfig();
+    config = resources.getDeployConfig();
     sandbox = sinon.sandbox.create();
     template = JSON.stringify({});
 
@@ -26,6 +26,9 @@ describe('lib/cloudFormation', function () {
 
     // Make sure we stub everything that is used.
     sandbox.stub(cloudFormation.client, 'createStack').yields(null, {
+      StackId: ''
+    });
+    sandbox.stub(cloudFormation.client, 'updateStack').yields(null, {
       StackId: ''
     });
     sandbox.stub(cloudFormation.client, 'deleteStack').yields();
@@ -64,13 +67,37 @@ describe('lib/cloudFormation', function () {
         sinon.assert.calledWith(
           cloudFormation.client.createStack,
           {
-            StackName: utilities.getStackName(config),
+            StackName: utilities.determineStackName(config),
             Capabilities: config.capabilities,
-            OnFailure: config.onFailure,
+            OnFailure: config.onDeployFailure,
             Parameters: utilities.getParameters(config),
             Tags: utilities.getTags(config),
             TemplateBody: template,
             TimeoutInMinutes: config.createStackTimeoutInMinutes
+          },
+          sinon.match.func
+        );
+
+        expect(data).to.eql({
+          StackId: ''
+        });
+
+        done(error);
+      });
+    });
+  });
+
+  describe('updateStack', function () {
+    it('invokes createStack with expected arguments', function (done) {
+      cloudFormation.updateStack(template, function (error, data) {
+        sinon.assert.calledWith(
+          cloudFormation.client.updateStack,
+          {
+            StackName: utilities.determineStackName(config),
+            Capabilities: config.capabilities,
+            Parameters: utilities.getParameters(config),
+            Tags: utilities.getTags(config),
+            TemplateBody: template
           },
           sinon.match.func
         );
@@ -155,23 +182,23 @@ describe('lib/cloudFormation', function () {
     });
 
     it('makes repeated listStacks requests for NextToken', function (done) {
-      var validPriorConfig = resources.getConfig({
+      var validPriorConfig = resources.getDeployConfig({
         deployId: 'random-valid'
       });
-      var invalidPriorConfig = resources.getConfig({
+      var invalidPriorConfig = resources.getDeployConfig({
         deployId: 'random-invalid'
       });
 
       var validPriorStackSummary = {
-        StackName: utilities.getStackName(validPriorConfig),
+        StackName: utilities.determineStackName(validPriorConfig),
         StackId: 'priorStackId'
       };
       var invalidPriorStackSummary = {
-        StackName: utilities.getStackName(invalidPriorConfig),
+        StackName: utilities.determineStackName(invalidPriorConfig),
         StackId: 'priorStackId'
       };
       var createdStackSummary = {
-        StackName: utilities.getStackName(config),
+        StackName: utilities.determineStackName(config),
         StackId: createdStackId
       };
 

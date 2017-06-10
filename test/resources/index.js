@@ -9,18 +9,38 @@ var _ = require('lodash');
 var utilities = require('../../lib/utilities');
 
 /**
- * Return a configuration object, overwriting its defaults with values passed
- * in.
+ * Return a deploy configuration object, overwriting its defaults with the
+ * provided values.
  *
  * @param {Object} config Optional partial configuration with override values.
  * @return {Object} Configuration object.
  */
-exports.getConfig = function (config) {
-  return utilities.fillConfigurationDefaults(_.extend({
+exports.getDeployConfig = function (config) {
+  return utilities.fillDeployConfigurationDefaults(_.extend({
     clientOptions: undefined,
     baseName: 'test',
     version: '1.0.0',
     deployId: '1',
+    tags: {
+      a: 'b'
+    },
+    parameters: {
+      name: 'value'
+    }
+  }, config));
+};
+
+/**
+ * Return an update configuration object, overwriting its defaults with the
+ * provided values.
+ *
+ * @param {Object} config Optional partial configuration with override values.
+ * @return {Object} Configuration object.
+ */
+exports.getUpdateConfig = function (config) {
+  return utilities.fillUpdateConfigurationDefaults(_.extend({
+    clientOptions: undefined,
+    stackName: 'test',
     tags: {
       a: 'b'
     },
