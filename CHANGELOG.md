@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0
+
+  * Add the ability to run stack updates.
+  * Improve the error messages for stack operation failure.
+  * Bump minimum Node.js version to something more modern; barely needed, but
+better safe than sorry.
+
 ## 0.3.2
 
   * Add capabilities to the configuration options.

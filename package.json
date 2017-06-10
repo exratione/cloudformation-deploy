@@ -6,11 +6,11 @@
     "cloudformation",
     "deploy"
   ],
-  "version": "0.3.2",
+  "version": "0.4.0",
   "homepage": "https://github.com/exratione/cloudformation-deploy",
   "author": "Reason <reason@exratione.com>",
   "engines": {
-    "node": ">= 0.10"
+    "node": ">= 6.0.0"
   },
   "dependencies": {
     "async": "2.4.1",
