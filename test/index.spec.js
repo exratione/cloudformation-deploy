@@ -6,6 +6,7 @@
 var constants = require('../lib/constants');
 var Deploy = require('../lib/deploy');
 var index = require('../index');
+var PreviewUpdate = require('../lib/previewUpdate');
 var Update = require('../lib/update');
 
 describe('index', function () {
@@ -52,6 +53,29 @@ describe('index', function () {
       index.deploy(config, template, function (error) {
         sinon.assert.calledWith(
           Deploy.prototype.deploy,
+          sinon.match.func
+        );
+
+        done(error);
+      });
+    })
+  });
+
+  describe('previewUpdate', function () {
+    var config;
+    var template;
+
+    beforeEach(function () {
+      config = {};
+      template = {};
+
+      sandbox.stub(PreviewUpdate.prototype, 'previewUpdate').yields();
+    });
+
+    it('functions as expected', function (done) {
+      index.previewUpdate(config, template, function (error) {
+        sinon.assert.calledWith(
+          PreviewUpdate.prototype.previewUpdate,
           sinon.match.func
         );
 

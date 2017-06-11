@@ -106,6 +106,78 @@ describe('lib/configValidator', function () {
     });
   });
 
+  describe('preview update config', function () {
+
+    function run (property, value, shouldError) {
+      config = resources.getPreviewUpdateConfig();
+      config[property] = value;
+      errors = configValidator.validatePreviewUpdateConfig(config);
+      if (shouldError) {
+        expect(errors.length).to.be.above(0);
+      }
+      else {
+        expect(errors.length).to.equal(0);
+      }
+    }
+
+    function shouldAccept (property, value) {
+      run(property, value, false);
+    }
+
+    function shouldReject (property, value) {
+      run(property, value, true);
+    }
+
+    it('validates correct configuration', function () {
+      config = resources.getPreviewUpdateConfig();
+      errors = configValidator.validatePreviewUpdateConfig(config);
+      expect(errors).to.eql([]);
+    });
+
+    it('rejects invalid configurations, accepts valid configurations', function () {
+      shouldReject('changeSetName', undefined);
+      shouldReject('changeSetName', '');
+
+      shouldReject('deleteChangeSet', undefined);
+      shouldReject('deleteChangeSet', {});
+
+      shouldReject('stackName', undefined);
+      shouldReject('stackName', '');
+
+      shouldReject('parameters', undefined);
+      shouldReject('parameters', { numberIsInvalid: 7 });
+      shouldAccept('parameters', {});
+      shouldAccept('parameters', { arbitraryName: 'value' });
+
+      shouldReject('tags', undefined);
+      shouldReject('tags', { numberIsInvalid: 7 });
+      shouldAccept('parameters', {});
+      shouldAccept('parameters', { arbitraryName: 'value' });
+
+      shouldReject('progressCheckIntervalInSeconds', undefined);
+      shouldReject('progressCheckIntervalInSeconds', 0);
+      shouldReject('progressCheckIntervalInSeconds', -1);
+      shouldReject('progressCheckIntervalInSeconds', 'value');
+
+      shouldReject('capabilities', ['x']);
+      shouldAccept('capabilities', []);
+      shouldAccept('capabilities', [constants.capabilities.CAPABILITY_IAM]);
+      shouldAccept('capabilities', [constants.capabilities.CAPABILITY_NAMED_IAM]);
+      shouldAccept('capabilities', [
+        constants.capabilities.CAPABILITY_IAM,
+        constants.capabilities.CAPABILITY_NAMED_IAM
+      ]);
+
+      // The actually optional options property passed to AWS clients.
+      shouldReject('clientOptions', 'value');
+      shouldAccept('clientOptions', {});
+      shouldAccept('clientOptions', undefined);
+
+      // Adding extra unwanted property.
+      shouldReject('x', 'value');
+    });
+  });
+
   describe('update config', function () {
 
     function run (property, value, shouldError) {

@@ -1,5 +1,5 @@
 /**
- * @fileOverview Tests for the top level deployment code.
+ * @fileOverview Tests for the update code.
  */
 
 // Local.
@@ -13,7 +13,6 @@ describe('lib/deploy', function () {
   var config;
   var template;
   var sandbox;
-  var result;
   var stackId;
   var update;
 
@@ -24,12 +23,6 @@ describe('lib/deploy', function () {
     template = JSON.stringify({});
     update = new Update(config, template);
     stackId = 'id';
-    result = {
-      timedOut: false,
-      errors: [],
-      updateStack: update.getStackData(utilities.determineStackName(config)),
-      describeStack: undefined
-    };
 
     // Stub the event callback.
     sandbox.stub(config, 'onEventFn').returns();

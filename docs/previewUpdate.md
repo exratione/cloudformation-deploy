@@ -1,9 +1,9 @@
-# Updating a CloudFormation Stack
+# Preview the Update of a CloudFormation Stack
 
-Updating an existing stack is fairly easy, assuming that you understand exactly
-what will happen beforehand. It is a very good idea to use the
-[Change Set functionality][1] to explore the consequences of an update before
-trying it out for real.
+The [Change Set functionality][1] makes it possible to explore the consequences
+of an update before trying it out for real, at least to some degree. There are
+certainly many ways to create an update that a Change Set will declare useful,
+but that will nonetheless fail horribly in reality.
 
 ## Amend the CloudFormation Template
 
@@ -13,7 +13,7 @@ parameters passed to the template change. This module can accept the template as
 either a JSON string, an object, or a URL to a template uploaded to S3. Use the
 latter method for larger templates, as it has a larger maximum size limit.
 
-## Run the Update
+## Run the Preview
 
 Run the following code.
 
@@ -30,6 +30,9 @@ var config = {
   // --------------------
   // Required properties.
   // --------------------
+
+  // The name of the Change Set to be created.
+  changeSetName: 'example-stack-15-changeset-1',
 
   // The name of the stack to be updated.
   stackName: 'example-stack-15',
@@ -69,32 +72,31 @@ var config = {
   // deletion.
   progressCheckIntervalInSeconds: 10,
 
-  // A function invoked whenever a CloudFormation event is created during
-  // stack creation or deletion.
-  onEventFn: function (event) {
-    console.log(event);
-  }
+  // If true, delete the Change Set after obtaining the information it provides.
+  deleteChangeSet: true
 };
 
-cloudFormationDeploy.update(config, template, function (error, results) {
+cloudFormationDeploy.previewUpdate(config, template, function (error, results) {
   if (error) {
     console.error(error);
   }
 
   // Whether or not there is an error, the results object is returned. It will
-  // usually have additional useful information on why the stack update
-  // failed. On success it will include the stack description, outputs
-  // defined in the CloudFormation template, and events.
+  // usually have additional useful information, including the details of the
+  // proposed update: which operations will occur, and whether or not the
+  // update is expected to succeed or fail.
   console.log(results);
 });
 ```
 
-## Update Configuration
+## Preview Update Configuration
 
 The `config` object passed to `cloudFormationDeploy.update` supports the
 following required and optional properties.
 
 ### Required Properties
+
+`changeSetName` - `string` - The name of the Change Set to create.
 
 `stackName` - `string` - The name of the stack to update.
 
@@ -109,21 +111,13 @@ CloudFormation template. Parameter values must be strings.
 `progressCheckIntervalInSeconds` - `number` - Number of seconds to wait between each
 check on the progress of stack creation or deletion. Defaults to `10`.
 
-`onEventFn` - `function` - A function invoked whenever a new event is
-created during stack creation or deletion.
-
-```
-function (event) {
-  console.log(event);
-}
-```
+`deleteChangeSet` - `boolean` - If true, clean up by deleting the Change Set
+after obtaining its information.
 
 ## Failure Cases
 
-All failure cases will result in `cloudFormationDeploy.update` calling back with
-an error. The stack will attempt to roll back to its state prior to the update,
-which will either succeed or fail depending on the details of the update. In
-either case, the error message returned should identify the outcome and point to
-the root of the problem.
+Failure to create or obtain information from the Change Set will result in
+`cloudFormationDeploy.previewUpdate` calling back with an error. If a Change Set
+is successfully created prior to the point of failure, it will not be deleted.
 
 [1]: http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-changesets.html

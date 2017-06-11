@@ -1,5 +1,5 @@
 /**
- * @fileOverview Tests for the top level deployment code.
+ * @fileOverview Tests for the deploy code.
  */
 
 // Local.

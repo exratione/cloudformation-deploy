@@ -3,11 +3,9 @@
  */
 
 // Local.
-var configValidator = require('../../lib/configValidator');
 var constants = require('../../lib/constants');
 var CloudFormationOperation = require('../../lib/cloudFormationOperation');
 var resources = require('../resources');
-var utilities = require('../../lib/utilities');
 
 describe('lib/cloudFormationOperation', function () {
   var config;

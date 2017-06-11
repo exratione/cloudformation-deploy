@@ -217,6 +217,46 @@ describe('lib/utilities', function () {
     });
   });
 
+  describe('fillPreviewUpdateConfigurationDefaults', function () {
+    it('fills defaults', function () {
+      var updateConfigA = utilities.fillPreviewUpdateConfigurationDefaults({
+        changeSetName: 'testChangeSet',
+        stackName: 'test'
+      });
+      var updateConfigB = {
+        changeSetName: 'testChangeSet',
+        clientOptions: undefined,
+        capabilities: _.values(constants.capabilities),
+        deleteChangeSet: true,
+        stackName: 'test',
+        tags: {},
+        parameters: {},
+        progressCheckIntervalInSeconds: 10
+      };
+
+      expect(updateConfigA).to.eql(updateConfigB);
+    });
+
+    it('does not override values', function () {
+      updateConfig = {
+        changeSetName: 'testChangeSet',
+        clientOptions: undefined,
+        capabilities: _.values(constants.capabilities),
+        deleteChangeSet: false,
+        stackName: 'test',
+        tags: {
+          x: 'y'
+        },
+        parameters: {
+          alpha: 'beta'
+        },
+        progressCheckIntervalInSeconds: 15
+      };
+
+      expect(utilities.fillPreviewUpdateConfigurationDefaults(updateConfig)).to.eql(updateConfig);
+    });
+  });
+
   describe('fillUpdateConfigurationDefaults', function () {
     it('fills defaults', function () {
       var updateConfigA = utilities.fillUpdateConfigurationDefaults({

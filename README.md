@@ -19,6 +19,7 @@ See the [examples directory][1] for ready to run examples.
 
   * [Configuring AWS Credentials](./docs/configure.md)
   * [Creating or Replacing a CloudFormation Stack](./docs/deploy.md)
+  * [Preview the Update of a CloudFormation Stack](./docs/previewUpdate.md)
   * [Updating a CloudFormation Stack](./docs/update.md)
 
 [1]: ./examples
