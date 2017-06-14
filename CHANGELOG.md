@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0
+
+  * Add an update preview via changesets.
+
 ## 0.4.0
 
   * Add the ability to run stack updates.
