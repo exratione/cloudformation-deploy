@@ -20,7 +20,7 @@
     "grunt-eslint": "22.0.0",
     "grunt-mocha-test": "0.13.3",
     "jsonschema": "1.0.2",
-    "lodash": "4.17.15",
+    "lodash": "4.17.21",
     "mocha": "6.2.2",
     "sinon": "1.15.4"
   },
