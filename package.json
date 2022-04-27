@@ -16,7 +16,7 @@
     "async": "2.4.1",
     "aws-sdk": "2.48.0",
     "chai": "3.1.0",
-    "grunt": "1.0.4",
+    "grunt": "1.5.2",
     "grunt-eslint": "22.0.0",
     "grunt-mocha-test": "0.13.3",
     "jsonschema": "1.0.2",
