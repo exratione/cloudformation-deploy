@@ -21,7 +21,7 @@
     "grunt-mocha-test": "0.13.3",
     "jsonschema": "1.0.2",
     "lodash": "4.17.15",
-    "mocha": "6.2.2",
+    "mocha": "10.2.0",
     "sinon": "1.15.4"
   },
   "repository": {
